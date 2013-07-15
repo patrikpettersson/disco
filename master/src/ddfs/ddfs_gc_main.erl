@@ -441,7 +441,7 @@ handle_cast({gc_done, Node, GCNodeStats}, #state{phase = gc,
                                                       AvgDiskUsage),
                  OverusedNodes = find_unstable_nodes(overused, NewNodeStats,
                                                      AvgDiskUsage),
-                lager:info("GC: average disk utilization: ~p, "
+                 lager:info("GC: average disk utilization: ~p, "
                            "over utilized nodes: ~p, "
                            "under utilized nodes: ~p",
                            [AvgDiskUsage, length(OverusedNodes),
