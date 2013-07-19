@@ -859,9 +859,9 @@ start_gc_phase(#state{gc_peers = Peers, nodestats = NodeStats} = S) ->
 -spec avg_disk_usage([node_info()]) -> non_neg_integer().
 avg_disk_usage(NodeStats) ->
     Sum = lists:foldl(
-        fun({_N, {Free, Used}}, S) ->
-            S + (Used / (Used + Free))
-        end, 0, NodeStats),
+              fun({_N, {Free, Used}}, S) ->
+                      S + (Used / (Used + Free))
+              end, 0, NodeStats),
     NumNodes = length(NodeStats),
     case NumNodes of
         0 -> 0;
@@ -872,10 +872,10 @@ avg_disk_usage(NodeStats) ->
                          -> [node()].
 find_unstable_nodes(underused, NodeStats, AvgUsage) ->
     [N || {N, {Free, Used}} <- NodeStats,
-    Used / (Free + Used) < AvgUsage - ?GC_BALANCE_THRESHOLD];
+          Used / (Free + Used) < AvgUsage - ?GC_BALANCE_THRESHOLD];
 find_unstable_nodes(overused, NodeStats, AvgUsage) ->
     [N || {N, {Free, Used}} <- NodeStats,
-    Used / (Free + Used) > AvgUsage + ?GC_BALANCE_THRESHOLD].
+          Used / (Free + Used) > AvgUsage + ?GC_BALANCE_THRESHOLD].
 
 -spec update_nodestats(node(), gc_run_stats(), [node_info()]) -> [node_info()].
 update_nodestats(Node, {Tags, Blobs}, NodeStats) ->
