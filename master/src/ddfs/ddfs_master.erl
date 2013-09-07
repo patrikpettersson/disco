@@ -299,21 +299,10 @@ do_get_readable_nodes(Nodes, ReadBlacklist) ->
 -spec do_choose_write_nodes([node_info()], non_neg_integer(), [node()], [node()]) ->
                                    {ok, [node()]}.
 do_choose_write_nodes(Nodes, K, Exclude, BlackList) ->
-    % Node selection algorithm:
-    % 1. try to choose K nodes randomly from all the nodes which have
-    %    more than ?MIN_FREE_SPACE bytes free space available and which
-    %    are not excluded or blacklisted.
-    % 2. if K nodes cannot be found this way, choose the K emptiest
-    %    nodes which are not excluded or blacklisted.
-    Primary = ([N || {N, {Free, _Total}} <- Nodes, Free > ?MIN_FREE_SPACE / 1024]
-               -- (Exclude ++ BlackList)),
-    if length(Primary) >= K ->
-            {ok, disco_util:choose_random(Primary, K)};
-       true ->
-            Preferred = [N || {N, _} <- lists:reverse(lists:keysort(2, Nodes))],
-            Secondary = lists:sublist(Preferred -- (Exclude ++ BlackList), K),
-            {ok, Secondary}
-    end.
+    Utilization = [{N, Used / (Used + Free)} || {N, {Free, Used}} <- Nodes],
+    Preferred = [N || {N, _} <- lists:keysort(2, Utilization)],
+    WriteNodes = lists:sublist(Preferred -- (Exclude ++ BlackList), K),
+    {ok, WriteNodes}.
 
 -type new_blob_result() :: too_many_replicas | {ok, [nonempty_string()]}.
 -spec do_new_blob(string()|object_name(), non_neg_integer(), [node()], [node()], [node_info()]) ->
