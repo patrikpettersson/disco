@@ -228,6 +228,10 @@ Settings used by DDFS:
                 The amount of time to wait after startup before running GC (in minutes).
                 Default is ``''``, which triggers an internal default of 5 minutes.
 
+        .. envvar:: DDFS_GC_BALANCE_THRESHOLD
+
+                The distance a node's disk utilization can be from the average disk utilization of the cluster before the node is considered to be over-utilized or under-utilized.                
+
         .. envvar:: DDFS_PARANOID_DELETE
 
                 Instead of deleting unneeded files, DDFS garbage collector prefixes obsolete files with ``!trash.``, so they can be safely verified/deleted by an external process. For instance, the following command can be used to finally delete the files (assuming that ``DDFS_DATA = "/srv/disco/ddfs"``)::
@@ -261,60 +265,61 @@ from clx.settings import Settings
 
 class DiscoSettings(Settings):
     defaults = {
-        'DISCO_DATA':            "os.path.join(DISCO_ROOT, 'data')",
-        'DISCO_DEBUG':           "'off'",
-        'DISCO_ERLANG':          "guess_erlang()",
-        'DISCO_EVENTS':          "''",
-        'DISCO_FLAGS':           "''",
-        'DISCO_HOME':            "guess_home()",
-        'DISCO_HTTPD':           "'lighttpd -f $DISCO_PROXY_CONFIG'",
-        'DISCO_MASTER':          "'http://%s:%s' % (DISCO_MASTER_HOST, DISCO_PORT)",
-        'DISCO_MASTER_HOME':     "os.path.join(DISCO_HOME, 'master')",
-        'DISCO_MASTER_HOST':     "socket.gethostname()",
-        'DISCO_MASTER_ROOT':     "os.path.join(DISCO_DATA, '_%s' % DISCO_NAME)",
-        'DISCO_MASTER_CONFIG':   "os.path.join(DISCO_ROOT, '%s.config' % DISCO_NAME)",
-        'DISCO_NAME':            "'disco_%s' % DISCO_PORT",
-        'DISCO_LOG_DIR':         "os.path.join(DISCO_ROOT, 'log')",
-        'DISCO_PID_DIR':         "os.path.join(DISCO_ROOT, 'run')",
-        'DISCO_PORT':            "8989",
-        'DISCO_ROOT':            "os.path.join(DISCO_HOME, 'root')",
-        'DISCO_ROTATE_LOG':      "False",
-        'DISCO_SETTINGS_FILE':   "guess_settings()",
-        'DISCO_WORKER_MAX_MEM':  "'80%'",
-        'DISCO_ULIMIT':          "16000000",
-        'DISCO_USER':            "os.getenv('LOGNAME')",
-        'DISCO_JOB_OWNER':       "job_owner()",
-        'DISCO_WWW_ROOT':        "os.path.join(DISCO_MASTER_HOME, 'www')",
+        'DISCO_DATA':                "os.path.join(DISCO_ROOT, 'data')",
+        'DISCO_DEBUG':               "'off'",
+        'DISCO_ERLANG':              "guess_erlang()",
+        'DISCO_EVENTS':              "''",
+        'DISCO_FLAGS':               "''",
+        'DISCO_HOME':                "guess_home()",
+        'DISCO_HTTPD':               "'lighttpd -f $DISCO_PROXY_CONFIG'",
+        'DISCO_MASTER':              "'http://%s:%s' % (DISCO_MASTER_HOST, DISCO_PORT)",
+        'DISCO_MASTER_HOME':         "os.path.join(DISCO_HOME, 'master')",
+        'DISCO_MASTER_HOST':         "socket.gethostname()",
+        'DISCO_MASTER_ROOT':         "os.path.join(DISCO_DATA, '_%s' % DISCO_NAME)",
+        'DISCO_MASTER_CONFIG':       "os.path.join(DISCO_ROOT, '%s.config' % DISCO_NAME)",
+        'DISCO_NAME':                "'disco_%s' % DISCO_PORT",
+        'DISCO_LOG_DIR':             "os.path.join(DISCO_ROOT, 'log')",
+        'DISCO_PID_DIR':             "os.path.join(DISCO_ROOT, 'run')",
+        'DISCO_PORT':                "8989",
+        'DISCO_ROOT':                "os.path.join(DISCO_HOME, 'root')",
+        'DISCO_ROTATE_LOG':          "False",
+        'DISCO_SETTINGS_FILE':       "guess_settings()",
+        'DISCO_WORKER_MAX_MEM':      "'80%'",
+        'DISCO_ULIMIT':              "16000000",
+        'DISCO_USER':                "os.getenv('LOGNAME')",
+        'DISCO_JOB_OWNER':           "job_owner()",
+        'DISCO_WWW_ROOT':            "os.path.join(DISCO_MASTER_HOME, 'www')",
 # GC
-        'DISCO_GC_AFTER':        "100 * 365 * 24 * 60 * 60",
+        'DISCO_GC_AFTER':            "100 * 365 * 24 * 60 * 60",
 # PROXY
-        'DISCO_PROXY_ENABLED':   "''",
-        'DISCO_PROXY':           "''",
-        'DISCO_PROXY_PORT':      "8999",
-        'DISCO_PROXY_PID':       "os.path.join(DISCO_ROOT, '%s-proxy.pid' % DISCO_NAME)",
-        'DISCO_PROXY_CONFIG':    "os.path.join(DISCO_ROOT, '%s-proxy.conf' % DISCO_NAME)",
+        'DISCO_PROXY_ENABLED':       "''",
+        'DISCO_PROXY':               "''",
+        'DISCO_PROXY_PORT':          "8999",
+        'DISCO_PROXY_PID':           "os.path.join(DISCO_ROOT, '%s-proxy.pid' % DISCO_NAME)",
+        'DISCO_PROXY_CONFIG':        "os.path.join(DISCO_ROOT, '%s-proxy.conf' % DISCO_NAME)",
 # SCHEDULER
-        'DISCO_SCHEDULER':       "'fair'",
-        'DISCO_SCHEDULER_ALPHA': ".001",
+        'DISCO_SCHEDULER':           "'fair'",
+        'DISCO_SCHEDULER_ALPHA':     ".001",
 # TESTING
-        'DISCO_TEST_DISCODB':    "''",
-        'DISCO_TEST_HOST':       "socket.gethostname()",
-        'DISCO_TEST_PORT':       "9444",
-        'DISCO_TEST_PROFILE':    "''",
-        'DISCO_TEST_PURGE':      "'purge'",
+        'DISCO_TEST_DISCODB':        "''",
+        'DISCO_TEST_HOST':           "socket.gethostname()",
+        'DISCO_TEST_PORT':           "9444",
+        'DISCO_TEST_PROFILE':        "''",
+        'DISCO_TEST_PURGE':          "'purge'",
 # DDFS
-        'DDFS_ROOT':             "os.path.join(DISCO_ROOT, 'ddfs')",
-        'DDFS_DATA':             "DDFS_ROOT",
-        'DDFS_PUT_PORT':         "8990",
-        'DDFS_PUT_MAX':          "3",
-        'DDFS_GET_MAX':          "3",
-        'DDFS_READ_TOKEN':       "None",
-        'DDFS_WRITE_TOKEN':      "None",
-        'DDFS_TAG_MIN_REPLICAS': "1",
-        'DDFS_TAG_REPLICAS':     "1",
-        'DDFS_BLOB_REPLICAS':    "1",
-        'DDFS_PARANOID_DELETE':  "''",
-        'DDFS_GC_INITIAL_WAIT':  "''"
+        'DDFS_ROOT':                 "os.path.join(DISCO_ROOT, 'ddfs')",
+        'DDFS_DATA':                 "DDFS_ROOT",
+        'DDFS_PUT_PORT':             "8990",
+        'DDFS_PUT_MAX':              "3",
+        'DDFS_GET_MAX':              "3",
+        'DDFS_READ_TOKEN':           "None",
+        'DDFS_WRITE_TOKEN':          "None",
+        'DDFS_TAG_MIN_REPLICAS':     "1",
+        'DDFS_TAG_REPLICAS':         "1",
+        'DDFS_BLOB_REPLICAS':        "1",
+        'DDFS_PARANOID_DELETE':      "''",
+        'DDFS_GC_INITIAL_WAIT':      "''",
+        'DDFS_GC_BALANCE_THRESHOLD': "''"
         }
 
     globals = globals()
